@@ -7,17 +7,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import hu.davidorcsik.dorm.inventory.utility.InventoryItem;
-import hu.davidorcsik.dorm.inventory.utility.QRCaptureActivity;
+import java.io.IOException;
+
+import hu.davidorcsik.dorm.inventory.logic.InventoryItem;
+import hu.davidorcsik.dorm.inventory.ui.QRCaptureActivity;
+import hu.davidorcsik.dorm.inventory.logic.RESTHelper;
 
 public class RegisterQRCode extends AppCompatActivity {
     private QRDetails detailsFragment;
@@ -43,7 +42,6 @@ public class RegisterQRCode extends AppCompatActivity {
                 try {
                     detailsFragment.setQrId(Long.parseLong(qrContent));
                 } catch (NumberFormatException e) {
-                    detailsFragment.setQrId(1234); //TODO: REMOVE AFTER DEBUG!!!!!
                     Toast.makeText(RegisterQRCode.this, "Hibás QR kód!", Toast.LENGTH_LONG).show();
                 }
                 Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
@@ -65,15 +63,19 @@ public class RegisterQRCode extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             try {
-                InventoryItem item = new InventoryItem(detailsFragment);
-                try {
-                    String jsonszar = new ObjectMapper().writeValueAsString(item);
-                    int a = 0;
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
+                final InventoryItem item = new InventoryItem(detailsFragment);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            RESTHelper.getInstance().addQR(RegisterQRCode.this, item);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
             } catch (IllegalArgumentException e) {
-                Toast.makeText(RegisterQRCode.this, "Kérleg a megfelelő mezőket töltsd ki!", Toast.LENGTH_LONG).show();
+                Toast.makeText(RegisterQRCode.this, "Kérlek a megfelelő mezőket töltsd ki!", Toast.LENGTH_LONG).show();
             }
         }
     };

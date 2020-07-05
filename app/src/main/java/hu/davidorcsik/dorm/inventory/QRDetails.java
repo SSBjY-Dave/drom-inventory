@@ -9,15 +9,22 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+
+import java.util.ArrayList;
+
+import hu.davidorcsik.dorm.inventory.logic.ItemCondition;
+import hu.davidorcsik.dorm.inventory.logic.ItemType;
+import hu.davidorcsik.dorm.inventory.ui.ItemConditionSpinnerAdapter;
+import hu.davidorcsik.dorm.inventory.ui.ItemTypeSpinnerAdapter;
 
 public class QRDetails extends Fragment {
     private long qrId;
     private EditText edtRoomNumber;
     private EditText edtInventoryId;
     private Spinner spnItemType;
+    private Spinner spnItemCondition;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,12 +39,20 @@ public class QRDetails extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         ((RegisterQRCode)view.getContext()).setDetailsFragment(this);
-        edtRoomNumber = view.findViewById(R.id.edtRoomNumber);
-        edtInventoryId = view.findViewById(R.id.edtInventoryId);
-        spnItemType = view.findViewById(R.id.spnItemType);
-        spnItemType.setAdapter(ArrayAdapter.createFromResource(view.getContext(), R.array.item_types, android.R.layout.simple_spinner_item));
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                edtRoomNumber = view.findViewById(R.id.edtRoomNumber);
+                edtInventoryId = view.findViewById(R.id.edtInventoryId);
+                spnItemType = view.findViewById(R.id.spnItemType);
+                spnItemCondition = view.findViewById(R.id.spnItemCondition);
+                spnItemType.setAdapter(new ItemTypeSpinnerAdapter(view.getContext(), ItemType.values()));
+                spnItemCondition.setAdapter(new ItemConditionSpinnerAdapter(view.getContext(), ItemCondition.getValuesDescending()));
+            }
+        }).start();
     }
 
     public long getQrId() {
@@ -52,23 +67,15 @@ public class QRDetails extends Fragment {
         return edtRoomNumber;
     }
 
-    public void setEdtRoomNumber(EditText edtRoomNumber) {
-        this.edtRoomNumber = edtRoomNumber;
-    }
-
     public EditText getEdtInventoryId() {
         return edtInventoryId;
-    }
-
-    public void setEdtInventoryId(EditText edtInventoryId) {
-        this.edtInventoryId = edtInventoryId;
     }
 
     public Spinner getSpnItemType() {
         return spnItemType;
     }
 
-    public void setSpnItemType(Spinner spnItemType) {
-        this.spnItemType = spnItemType;
+    public Spinner getSpnItemCondition() {
+        return spnItemCondition;
     }
 }

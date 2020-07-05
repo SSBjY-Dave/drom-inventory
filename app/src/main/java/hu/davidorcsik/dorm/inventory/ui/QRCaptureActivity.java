@@ -1,7 +1,6 @@
-package hu.davidorcsik.dorm.inventory.utility;
+package hu.davidorcsik.dorm.inventory.ui;
 
 import android.app.Activity;
-import android.content.Context;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.journeyapps.barcodescanner.CaptureActivity;
